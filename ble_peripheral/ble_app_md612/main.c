@@ -172,6 +172,7 @@ typedef struct {
 	ble_gatts_char_handles_t x_char_handles; 	/**< Handles related to the our new characteristic. */
 	ble_gatts_char_handles_t y_char_handles; 	/**< Handles related to the our new characteristic. */
 	ble_gatts_char_handles_t z_char_handles; 	/**< Handles related to the our new characteristic. */
+//DKW - add characteristics? Maybe change to qw,qx,qy,qz and ax, ay, az (or is there a better way?)
 } ble_mde_t;
 
 static ble_mde_t m_mde; 						/**< MDE BLE Information. */
@@ -1212,21 +1213,71 @@ static void motiondriver_callback(unsigned char type, long *data,int8_t accuracy
 
 
 	switch (type) {
-	case PACKET_DATA_EULER: {
-		int16_t x = inv_q16_to_float(data[0]);
-		int16_t y = inv_q16_to_float(data[1]);
-		int16_t z = inv_q16_to_float(data[2]);
 
-		//if (ble_conn_state_encrypted(m_mde.conn_handle) ) {
-		if (ble_conn_state_status(m_mde.conn_handle) == BLE_CONN_STATUS_CONNECTED) {
-			NRF_LOG_INFO("Euler: [" NRF_LOG_FLOAT_MARKER " " NRF_LOG_FLOAT_MARKER " " NRF_LOG_FLOAT_MARKER "]\r\n", NRF_LOG_FLOAT(x), NRF_LOG_FLOAT(y), NRF_LOG_FLOAT(z));
-			NRF_LOG_INFO("E, 0x%hx, 0x%hx, 0x%hx, 0x%hx\n", accuracy, x, y, z);
+//DKW - Commenting Out to Test Accel & Quat
+//	case PACKET_DATA_EULER: {
+//		int16_t x = inv_q16_to_float(data[0]);
+//		int16_t y = inv_q16_to_float(data[1]);
+//		int16_t z = inv_q16_to_float(data[2]);
+//
+//		//if (ble_conn_state_encrypted(m_mde.conn_handle) ) {
+//		if (ble_conn_state_status(m_mde.conn_handle) == BLE_CONN_STATUS_CONNECTED) {
+//			NRF_LOG_INFO("Euler: [" NRF_LOG_FLOAT_MARKER " " NRF_LOG_FLOAT_MARKER " " NRF_LOG_FLOAT_MARKER "]\r\n", NRF_LOG_FLOAT(x), NRF_LOG_FLOAT(y), NRF_LOG_FLOAT(z));
+//			NRF_LOG_INFO("E, 0x%hx, 0x%hx, 0x%hx, 0x%hx\n", accuracy, x, y, z);
+//
+//			ble_mde_update (&m_mde, &x, &y, &z);
+//
+//		}
+//		break;
+//	}
 
-			ble_mde_update (&m_mde, &x, &y, &z);
+	//DKW - Need to change from Euler to Quats - AND get linear accel
+
+	case PACKET_DATA_QUAT: {
+
+//		if (hal.new_gyro && hal.dmp_on) {
+//		            short gyro[3], accel_short[3], sensors;
+//		            unsigned char more;
+//		            long accel[3], quat[4], temperature;
+//
+//		}else {}
+
+  //DKW - This works but values are wrong and just rigged w/out sending Quat 'W"
+
+		    int16_t qw = inv_q16_to_float(data[0]);
+			int16_t qx = inv_q16_to_float(data[1]);
+			int16_t qy = inv_q16_to_float(data[2]);
+			int16_t qz = inv_q16_to_float(data[3]);
+
+			//if (ble_conn_state_encrypted(m_mde.conn_handle) ) {
+			if (ble_conn_state_status(m_mde.conn_handle) == BLE_CONN_STATUS_CONNECTED) {
+				NRF_LOG_INFO("Quat: [" NRF_LOG_FLOAT_MARKER " " NRF_LOG_FLOAT_MARKER " " NRF_LOG_FLOAT_MARKER "]\r\n", NRF_LOG_FLOAT(qx), NRF_LOG_FLOAT(qy), NRF_LOG_FLOAT(qz));
+				NRF_LOG_INFO("E, 0x%hx, 0x%hx, 0x%hx, 0x%hx, 0x%hx\n", accuracy, qw, qx, qy, qz);
+
+				ble_mde_update (&m_mde, &qx, &qy, &qz); //DKW - Add qw
+
 
 		}
-		break;
-	}
+			break;
+		}
+
+	//DKW - Added - Also need to add LINEAR Acceleration
+//	case PACKET_DATA_ACCEL: {
+//			int16_t ax = inv_q16_to_float(data[0]);
+//			int16_t ay = inv_q16_to_float(data[1]);
+//			int16_t az = inv_q16_to_float(data[2]);
+//
+//			//if (ble_conn_state_encrypted(m_mde.conn_handle) ) {
+//			if (ble_conn_state_status(m_mde.conn_handle) == BLE_CONN_STATUS_CONNECTED) {
+//				NRF_LOG_INFO("Accel: [" NRF_LOG_FLOAT_MARKER " " NRF_LOG_FLOAT_MARKER " " NRF_LOG_FLOAT_MARKER "]\r\n", NRF_LOG_FLOAT(x), NRF_LOG_FLOAT(y), NRF_LOG_FLOAT(z));
+//				NRF_LOG_INFO("E, 0x%hx, 0x%hx, 0x%hx, 0x%hx\n", accuracy, ax, ay, az);
+//
+//				ble_mde_update (&m_mde, &ax, &ay, &az);
+//
+//			}
+//			break;
+//		}
+
 	default:
 		break;
 

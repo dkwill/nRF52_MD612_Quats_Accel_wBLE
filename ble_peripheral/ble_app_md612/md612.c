@@ -1,5 +1,4 @@
-/**
- *   @defgroup  eMPL
+*   @defgroup  eMPL
  *   @brief     Embedded Motion Processing Library
  *
  *   @{
@@ -76,7 +75,7 @@ static platform_data_t const * m_platform_data;
 //     unsigned char cmd;
 // };
 struct hal_s {
-    //unsigned char lp_accel_mode;
+    unsigned char lp_accel_mode;
     unsigned char sensors;
     unsigned char dmp_on;
     volatile unsigned short motion;
@@ -125,30 +124,41 @@ static void read_from_mpl(void)
 
 
    	// read the euler values and send to call back function.
-    if (inv_get_sensor_type_euler(data, &accuracy, (inv_time_t*)&timestamp)) {
-    	m_platform_data->cb(PACKET_DATA_EULER,  data, accuracy, timestamp);
-    }
+//    if (inv_get_sensor_type_euler(data, &accuracy, (inv_time_t*)&timestamp)) {
+//    	m_platform_data->cb(PACKET_DATA_EULER,  data, accuracy, timestamp);
+//    }
 
 
-/*	if (inv_get_sensor_type_quat(data, &accuracy, (inv_time_t*) &timestamp)) {
-		m_platform_data->cb(PACKET_DATA_QUAT, data, accuracy, timestamp,
-				hal.tap);
-		hal.tap = 0;
-	}*/
+
+//DKW Changed to get Quats
+//	if (inv_get_sensor_type_quat(data, &accuracy, (inv_time_t*) &timestamp)) {
+//		m_platform_data->cb(PACKET_DATA_QUAT, data, accuracy, timestamp,
+//				hal.tap);
+//		hal.tap = 0;
+//	}
+
+
+//DKW Added Accel
+
+	if (inv_get_sensor_type_accel(data, &accuracy, (inv_time_t*) &timestamp)) {
+			m_platform_data->cb(PACKET_DATA_ACCEL, data, accuracy, timestamp);
+
+		}
+
 
     //NRF_LOG_INFO("[%d] Accuracy: %d\r\n", timestamp, accuracy);
 
-    // if (inv_get_sensor_type_quat(data, &accuracy, (inv_time_t*)&timestamp)) {
-    //    /* Sends a quaternion packet to the PC. Since this is used by the Python
-    //     * test app to visually represent a 3D quaternion, it's sent each time
-    //     * the MPL has new data.
-    //     */
-    //     eMPL_send_quat(data);
+     if (inv_get_sensor_type_quat(data, &accuracy, (inv_time_t*)&timestamp)) {
+        /* Sends a quaternion packet to the PC. Since this is used by the Python
+         * test app to visually represent a 3D quaternion, it's sent each time
+         * the MPL has new data.
+         */
+         eMPL_send_quat(data);
 
-    //     // /* Specific data packets can be sent or suppressed using USB commands. */
-    //     // if (hal.report & PRINT_QUAT)
-    //     //     eMPL_send_data(PACKET_DATA_QUAT, data);
-    // }
+         // /* Specific data packets can be sent or suppressed using USB commands. */
+         // if (hal.report & PRINT_QUAT)
+         //     eMPL_send_data(PACKET_DATA_QUAT, data);
+     }
 
 //     if (hal.report & PRINT_ACCEL) {
 //         if (inv_get_sensor_type_accel(data, &accuracy,
@@ -1184,6 +1194,8 @@ void md612_aftersleep()
             * in eMPL_outputs.c. This function only needs to be called at the
             * rate requested by the host.
             */
+
+        //DKW - Try Changing to Accel Data
         if (hal.new_euler) {
         	if (hal.motion) {
         		read_from_mpl();
@@ -1197,6 +1209,20 @@ void md612_aftersleep()
         }
     }
 }
+
+     //   if (new_accel) {
+        //        	if (hal.motion) {
+        //        		read_from_mpl();
+        //        		hal.motion = 0;
+        //        	}
+        //        	// if there is not motion only send if the slow timme out has occured.
+        //        	else if (hal.new_euler == 2) {
+        //        		read_from_mpl();
+        //        	}
+        //        	hal.new_euler = 0;
+        //        }
+        //    }
+        //}
 
 unsigned char md612_hasnewdata()
 {
