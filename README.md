@@ -1,3 +1,7 @@
+Project was created from source below and modified to send Euler angles over BLE. Due to a problem w/ gimbal lock, need to change this project to 
+use Quaternions from the DMP - and also send linear acceleration data. 
+
+
 # nRF52832_pesky
 Programming nRF52832 + MPU9250 + BMP280 dev board from https://www.tindie.com/products/onehorse/nrf52832-development-board/ with nRF52 SDK, GCC and JLink.
 
